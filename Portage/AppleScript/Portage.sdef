@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary title="Portage Terminology">
+	<suite name="Portage Suite" code="PrtS"
+		   description="Commands for controlling monitor inputs via DDC">
+
+		<command name="activate preset" code="PrtSActP"
+				 description="Activate a saved preset configuration">
+			<cocoa class="Portage.ActivatePresetCommand"/>
+			<direct-parameter type="text" description="Preset name or UUID"/>
+			<result type="text" description="Confirmation message"/>
+		</command>
+
+		<command name="switch input" code="PrtSSiIn"
+				 description="Switch a monitor to a specific input source">
+			<cocoa class="Portage.SwitchInputCommand"/>
+			<direct-parameter type="text" description="Monitor name or UUID"/>
+			<parameter name="to" code="InLb" type="text"
+					   description="Input label (e.g. HDMI-1, DisplayPort)"/>
+			<result type="text" description="Confirmation message"/>
+		</command>
+
+		<command name="list monitors" code="PrtSLsMn"
+				 description="List all connected monitors">
+			<cocoa class="Portage.ListMonitorsCommand"/>
+			<result type="record" list="yes"
+					description="List of monitor records with name, id, current input"/>
+		</command>
+
+		<command name="list presets" code="PrtSLsPr"
+				 description="List all saved presets">
+			<cocoa class="Portage.ListPresetsCommand"/>
+			<result type="record" list="yes"
+					description="List of preset records with name and id"/>
+		</command>
+
+		<command name="get monitor input" code="PrtSGtMi"
+				 description="Get the current input for a specific monitor">
+			<cocoa class="Portage.GetMonitorInputCommand"/>
+			<direct-parameter type="text" description="Monitor name or UUID"/>
+			<result type="record"
+					description="Monitor record with name, id, current input"/>
+		</command>
+	</suite>
+</dictionary>
