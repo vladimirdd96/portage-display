@@ -7,6 +7,7 @@ enum DDCError: Error, Sendable, LocalizedError {
     case serviceUnavailable(monitor: String)
     case switchRejected(monitor: String, requested: UInt16, actual: UInt16)
     case switchUnconfirmed(monitor: String)
+    case controlUnconfirmed(name: String)
 
     var isSwitchRejected: Bool {
         if case .switchRejected = self { return true }
@@ -25,6 +26,8 @@ enum DDCError: Error, Sendable, LocalizedError {
             "Monitor service unavailable"
         case .switchRejected:
             "Input switch was rejected by the monitor"
+        case .controlUnconfirmed(let name):
+            "The monitor did not confirm \(name). Check its current picture mode and on-screen settings."
         case .switchUnconfirmed:
             "Input command sent, but the monitor did not confirm the switch. Check its DDC/CI setting and connection."
         }
@@ -39,6 +42,7 @@ struct DDCDisplayInfo: Sendable, Identifiable {
     var advertisedInputs: [InputMapping]? = nil
     var systemDisplayID: UInt32? = nil
     var supportedVCP: Set<UInt8>? = nil
+    var colorPresetValues: [UInt16]? = nil
     var id: String { edidUUID }
 }
 

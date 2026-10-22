@@ -126,16 +126,24 @@ private struct MonitorDetailView: View {
         if preferences.enabled(.brightness) {
             Section("Brightness") { BrightnessControl(monitor: monitor, monitorStore: monitorStore) }
         }
-        if preferences.enabled(.hardware), !(monitor.hardwareLevels ?? [:]).isEmpty || monitor.isMuted != nil {
+        if preferences.enabled(.hardware), HardwareFeature.allCases.filter({ !$0.isColor }).contains(where: { monitor.hardwareLevels?[$0.key] != nil }) || monitor.isMuted != nil {
             Section("Contrast & Audio") { HardwareControls(monitor: monitor, monitorStore: monitorStore) }
+        }
+        if preferences.enabled(.monitorColors), !monitor.isBuiltIn {
+            Section("Monitor Colors") { MonitorColorControls(monitor: monitor, monitorStore: monitorStore) }
         }
         if let displayID = monitor.systemDisplayID {
             if preferences.enabled(.modes) {
                 Section("Resolution & Refresh Rate") { DisplayModeControl(displayID: displayID) }
             }
-            if preferences.enabled(.profiles) { Section("Color Profile") { ColorProfileControl(displayID: displayID) } }
+            if preferences.enabled(.profiles) {
+                Section("Advanced") {
+                    DisclosureGroup("macOS Color Profile") { ColorProfileControl(displayID: displayID) }
+                        .disclosureGroupStyle(FullRowDisclosureStyle())
+                }
+            }
         }
-        if ![AppFeature.brightness, .hardware, .modes, .profiles].contains(where: { preferences.enabled($0) }) {
+        if ![AppFeature.brightness, .hardware, .monitorColors, .modes, .profiles].contains(where: { preferences.enabled($0) }) {
             Text("Picture controls are turned off in Features.").foregroundStyle(.secondary)
         }
     }

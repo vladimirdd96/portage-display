@@ -7,7 +7,7 @@ struct HardwareControls: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            ForEach(HardwareFeature.allCases, id: \.rawValue) { feature in
+            ForEach(HardwareFeature.allCases.filter { !$0.isColor }, id: \.rawValue) { feature in
                 if let level = monitor.hardwareLevels?[feature.key] {
                     VStack(spacing: 6) {
                         HStack {

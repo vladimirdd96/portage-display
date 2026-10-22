@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.17.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.18.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 
@@ -15,7 +15,7 @@ The initial release is ad-hoc signed, **not notarized**. macOS may block its fir
 - Discover multiple displays when opening controls and after display connection changes.
 - Switch external monitor inputs directly, assign shortcuts to individual inputs, or cycle an ordered selection with one shortcut. Input commands use the existing connection without a full refresh first. Cycling advances from the last known input; opening the menu refreshes it after changes made outside the app.
 - Adjust built-in display brightness and supported external DDC brightness, contrast, and speaker volume.
-- Choose which displays and features appear in the menu. Expand entire rows and optionally remember their state. Clicking outside the menu closes it.
+- Choose which displays and features appear in the menu. Expand entire rows and optionally remember their state. Display sections are directly accessible without a More Options layer. Clicking outside the menu closes it.
 - Use native Settings with a horizontal display selector, input presets, and separate feature and menu customization controls.
 - Choose System, Light, or Dark appearance with native macOS materials.
 - Group display modes by refresh rate; applying a mode includes a 15-second automatic rollback unless confirmed.
@@ -85,3 +85,17 @@ If you have 1.16 or earlier, install 1.17 manually once from [Releases](https://
 ### Publishing updates (maintainers)
 
 Increment both the app version and build number, then run `scripts/package.sh` and `scripts/sign-update.sh` on the release Mac. The signing script uses the `portage-display` key in the login Keychain and creates `appcast.xml` for the versioned GitHub release asset. Publish the exact ZIP and checksum under that tag, then publish the feed on `main`. Never replace a released archive with different bytes. The signing key must remain private and available for future releases; never commit or log it. Fork maintainers must generate their own key with Sparkle's `generate_keys --account <account>`, replace `SUPublicEDKey` and `SUFeedURL`, and change the signing script's account and download URL.
+
+## Quick brightness and appearance presets
+
+Brightness sliders are visible beneath each display name even when the display’s other controls are collapsed. Open the menu and drag the slider; no disclosure click is needed. In **Settings → Menu Bar → Quick Access**, turn off **Keep brightness visible when displays are collapsed** if you prefer a compact list. Feature visibility and your selected displays are still respected.
+
+In **Settings → Presets**, create a preset and expand a display under **Appearance & Audio**. Enable only the values you want it to apply: brightness, monitor color presets and RGB gain, and supported contrast, display volume, or mute. macOS color profiles remain an optional advanced control. Input selections remain optional. The preset actions menu can **Save Current Display Settings** (brightness and supported monitor color and audio settings) as a starting point, without changing any monitor settings or adding input switches. Editing a preset only saves its configuration; activate it from the menu or its shortcut to apply it.
+
+Old input-only presets and shortcuts remain compatible. Appearance controls are applied before switching an input away from the Mac. Unavailable controls, disconnected displays, disabled features, and missing profiles report an error instead of claiming success. Presets can partially apply when one control fails. Color profiles affect the Mac’s output and custom profiles must also be installed on any other Mac that uses the preset. Resolution and refresh rate remain separate controls with their existing timed confirmation; proprietary manufacturer picture modes are not guessed or written.
+
+## Monitor-native color controls and resource use
+
+**Monitor Colors** uses standard DDC/MCCS color preset (0x14) and RGB gain (0x16, 0x18, 0x1A) controls. Support comes from the connected monitor’s capability report and successful reads, so compatible brands and models work without a large vendor database. Only advertised preset values are offered; standard names follow [MCCS as documented by ddcutil](https://www.ddcutil.com/vcpinfo_output/). A monitor may expose additional proprietary settings only through its own OSD, and RGB gain may require its User/Custom mode. We have verified capability discovery on the development monitor; other models require real-device testing.
+
+Disable Monitor Color Controls in Features to skip its hardware reads and block its writes. Disabled feature controls are not created in the menu or display settings. Hardware state refreshes when controls open or displays change; there is no continuous polling. ICC profile lists are loaded only when their advanced controls are opened. Saved preferences and the app’s compiled code still occupy a small amount of memory—disabled features cannot literally use zero RAM.

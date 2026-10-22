@@ -19,6 +19,9 @@ struct Preset: Codable, Identifiable, Sendable {
     var name: String
     var assignments: [PresetAssignment]
     var hotkeyName: String?
+    var displaySettings: [PresetDisplaySettings]?
+
+    var displayCount: Int { Set(assignments.map(\.monitorEdidUUID) + (displaySettings ?? []).map(\.monitorEdidUUID)).count }
 
     init(name: String, assignments: [PresetAssignment] = []) {
         self.id = UUID()

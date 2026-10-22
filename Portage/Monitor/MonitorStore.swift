@@ -114,18 +114,29 @@ final class MonitorStore {
             }
             for index in updatedMonitors.indices {
                 let id = updatedMonitors[index].id
-                let features = self.features.enabled(.hardware) ? (displays.first(where: { $0.id == id })?.supportedVCP ?? []) : []
+                let display = displays.first(where: { $0.id == id })
+                let features = display?.supportedVCP ?? []
                 updatedMonitors[index].hardwareLevels = [:]
                 updatedMonitors[index].hardwareMaximums = [:]
                 updatedMonitors[index].isMuted = nil
-                for feature in HardwareFeature.allCases where features.contains(feature.rawValue) {
+                for feature in HardwareFeature.allCases where features.contains(feature.rawValue) && self.features.enabled(feature.requiredFeature) {
                     if let result = try? await ddcService.readVCP(feature.rawValue, display: id),
                        result.max > 0, result.current <= result.max {
                         updatedMonitors[index].hardwareLevels?[feature.key] = Double(result.current) / Double(result.max)
                         updatedMonitors[index].hardwareMaximums?[feature.key] = result.max
                     }
                 }
-                if features.contains(0x8D), let result = try? await ddcService.readVCP(0x8D, display: id),
+                updatedMonitors[index].colorPresetValues = nil
+                updatedMonitors[index].currentColorPreset = nil
+                if self.features.enabled(.monitorColors), features.contains(0x14), let values = display?.colorPresetValues, !values.isEmpty,
+                   let result = try? await ddcService.readVCP(0x14, display: id) {
+                    let value = result.current & 0xFF
+                    if values.contains(value) {
+                        updatedMonitors[index].colorPresetValues = values
+                        updatedMonitors[index].currentColorPreset = value
+                    }
+                }
+                if self.features.enabled(.hardware), features.contains(0x8D), let result = try? await ddcService.readVCP(0x8D, display: id),
                    result.current == 1 || result.current == 2 {
                     updatedMonitors[index].isMuted = result.current == 1
                 }
@@ -278,7 +289,7 @@ final class MonitorStore {
     }
 
     func setHardwareLevel(monitorID: String, feature: HardwareFeature, value: Double) {
-        guard features.enabled(.hardware) else { return }
+        guard features.enabled(feature.requiredFeature) else { return }
         guard value.isFinite,
               let index = monitors.firstIndex(where: { $0.id == monitorID }),
               let maximum = monitors[index].hardwareMaximums?[feature.key] else { return }
@@ -290,7 +301,7 @@ final class MonitorStore {
             do {
                 try await Task.sleep(for: .milliseconds(120))
                 guard let self, !Task.isCancelled else { return }
-                try self.features.require(.hardware)
+                try self.features.require(feature.requiredFeature)
                 try await self.ddcService.writeVCP(feature.rawValue, value: UInt16((level * Double(maximum)).rounded()), display: monitorID)
                 self.hardwareErrors[monitorID] = nil
             } catch is CancellationError {} catch {
@@ -298,6 +309,47 @@ final class MonitorStore {
                 await self?.discover()
             }
         }
+    }
+
+    /// Presets await writes so failures cannot be announced as success.
+    func applyBrightness(monitorID: String, value: Double) async throws {
+        try features.require(.brightness)
+        guard value.isFinite,
+              let monitor = monitors.first(where: { $0.id == monitorID }),
+              let maximum = monitor.brightnessMaximum else {
+            throw DDCError.serviceUnavailable(monitor: monitorID)
+        }
+        brightnessTasks[monitorID]?.cancel()
+        let level = min(1, max(0.01, value))
+        try await ddcService.writeVCP(0x10, value: UInt16((level * Double(maximum)).rounded()), display: monitorID)
+        if let index = monitors.firstIndex(where: { $0.id == monitorID }) { monitors[index].brightnessValue = level }
+    }
+
+    func applyHardwareLevel(monitorID: String, feature: HardwareFeature, value: Double) async throws {
+        try features.require(feature.requiredFeature)
+        guard value.isFinite,
+              let monitor = monitors.first(where: { $0.id == monitorID }),
+              let maximum = monitor.hardwareMaximums?[feature.key] else {
+            throw DDCError.serviceUnavailable(monitor: monitorID)
+        }
+        hardwareTasks[monitorID + ":" + feature.key]?.cancel()
+        let level = min(1, max(0, value))
+        try await ddcService.writeVCP(feature.rawValue, value: UInt16((level * Double(maximum)).rounded()), display: monitorID)
+        if let index = monitors.firstIndex(where: { $0.id == monitorID }) { monitors[index].hardwareLevels?[feature.key] = level }
+    }
+
+    func applyColorPreset(monitorID: String, value: UInt16) async throws {
+        try features.require(.monitorColors)
+        guard let monitor = monitors.first(where: { $0.id == monitorID }),
+              monitor.colorPresetValues?.contains(value) == true else {
+            throw DDCError.serviceUnavailable(monitor: monitorID)
+        }
+        try await ddcService.writeVCP(0x14, value: value, display: monitorID)
+        try await Task.sleep(for: .milliseconds(100))
+        guard let result = try? await ddcService.readVCP(0x14, display: monitorID), result.current & 0xFF == value else {
+            throw DDCError.controlUnconfirmed(name: "the color preset")
+        }
+        if let index = monitors.firstIndex(where: { $0.id == monitorID }) { monitors[index].currentColorPreset = value }
     }
 
     func setMute(monitorID: String, muted: Bool) async throws {

@@ -10,7 +10,7 @@ struct HotkeySettingsView: View {
             Section {
                 Text("**One input:** Always switch one display to a specific input, such as HDMI 2.")
                 Text("**Cycle inputs:** Use one shortcut to step through your chosen inputs in order.")
-                Text("**Preset:** Apply saved input choices to one or more displays together, such as a Work setup.")
+                Text("**Preset:** Apply saved inputs, brightness, and color settings to one or more displays together.")
             } header: {
                 Text("Ways to Switch")
             } footer: {
@@ -60,7 +60,7 @@ struct HotkeySettingsView: View {
 
             Section("Preset Shortcuts") {
                 if monitorStore.monitors.filter({ !$0.isBuiltIn }).count == 1 {
-                    Text("With one display, a preset containing one input performs the same switch as an individual input shortcut. Presets add a name and can include more displays later.")
+                    Text("With one display, a preset containing one input performs the same switch as an individual input shortcut. Presets can also include brightness, color profiles, and more displays.")
                         .font(.callout).foregroundStyle(.secondary)
                 } else {
                     Text("Each shortcut applies all display input choices saved in that preset. Choose those inputs in Presets settings.")

@@ -49,6 +49,7 @@ final class LiveDDCService: DDCService, @unchecked Sendable {
                 capabilitiesCache[info.edidUUID] = capabilities
                 info.advertisedInputs = ManufacturerInputTable.advertisedMappings(capabilities, manufacturer: info.manufacturer)
                 info.supportedVCP = DDCCapabilities.features(in: capabilities)
+                info.colorPresetValues = DDCCapabilities.values(for: 0x14, in: capabilities)
             }
             infos.append(info)
 

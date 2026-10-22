@@ -29,7 +29,7 @@ struct SettingsView: View {
             case .general: "appearance theme dark light system login startup version about"
             case .monitors: "brightness resolution mode refresh color profile contrast volume information"
             case .shortcuts: "keyboard hotkey cycle order input hdmi displayport"
-            case .presets: "multi display setup assignments"
+            case .presets: "multi display setup assignments brightness color contrast audio saved settings"
             case .menu: "visibility hide remember layout expand collapse quick access"
             case .features: "enable disable controls availability"
             }

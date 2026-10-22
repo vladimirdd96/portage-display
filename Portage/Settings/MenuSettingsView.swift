@@ -41,9 +41,8 @@ struct MenuSettingsView: View {
     @AppStorage("menu.sectionStates") private var sectionData = Data()
     @AppStorage("menu.presetsExpanded") private var presetsExpanded = false
     @AppStorage("menu.singleExpandedFeature") private var singleFeature = false
+    @AppStorage("menu.brightnessAlwaysVisible") private var brightnessAlwaysVisible = true
     @AppStorage("menu.inputsAlwaysVisible") private var inputsAlwaysVisible = true
-    @AppStorage("menu.showModesInline") private var modesInline = false
-    @AppStorage("menu.showProfilesInline") private var profilesInline = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -127,9 +126,14 @@ struct MenuSettingsView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Section("Frequently Used Controls") {
+                        Toggle("Keep brightness visible when displays are collapsed", isOn: $brightnessAlwaysVisible)
+                        Text("Adjust brightness as soon as you open the menu, without expanding a display.")
+                            .font(.caption).foregroundStyle(.secondary)
                         Toggle("Keep input buttons visible", isOn: $inputsAlwaysVisible)
-                        Toggle("Keep display modes above More Options", isOn: $modesInline)
-                        Toggle("Keep color profiles above More Options", isOn: $profilesInline)
+                        Toggle("Show advanced macOS color profiles", isOn: Binding(
+                            get: { preferences.shown(.profiles) },
+                            set: { preferences.setShown($0, .profiles) }))
+                            .disabled(!preferences.enabled(.profiles))
                     }
                     Section("Menu Controls") {
                         Button("Choose Which Controls Appear…", action: onOpenFeatures)

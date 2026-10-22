@@ -80,7 +80,7 @@ final class AutomationService: Sendable {
 
     func listPresets() -> [PresetInfo] {
         presetStore.presets.map { preset in
-            PresetInfo(id: preset.id, name: preset.name, assignmentCount: preset.assignments.count)
+            PresetInfo(id: preset.id, name: preset.name, assignmentCount: preset.displayCount)
         }
     }
 

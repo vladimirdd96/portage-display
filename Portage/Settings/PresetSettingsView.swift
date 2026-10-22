@@ -23,6 +23,10 @@ struct PresetSettingsView: View {
                     Label("New Preset", systemImage: "plus")
                 }
                 Menu {
+                    Button("Save Current Display Settings") {
+                        savedID = presetStore.saveCurrentAppearance().id.uuidString
+                    }
+                    Divider()
                     Button("Delete Preset…", role: .destructive) { confirmDelete = true }.disabled(selected == nil)
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -36,7 +40,7 @@ struct PresetSettingsView: View {
             } else {
                 ContentUnavailableView(
                     "No Presets Yet", systemImage: "rectangle.stack",
-                    description: Text("Create a preset to switch several displays together.")
+                    description: Text("Save brightness, color profiles, and inputs for one or more displays.")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -50,7 +54,7 @@ struct PresetSettingsView: View {
                 if let preset = selected { presetStore.deletePreset(id: preset.id) }
             }
         } message: {
-            Text("Its input assignments and shortcut will be removed.")
+            Text("Its saved display settings and shortcut will be removed.")
         }
     }
 }
@@ -65,11 +69,9 @@ private struct PresetDetailView: View {
     var body: some View {
         Form {
             Section {
-                Text("A preset saves the input to select on one or more displays. Applying it switches all included displays together.")
-                if monitorStore.monitors.filter({ !$0.isBuiltIn }).count == 1 {
-                    Text("With one display and one input, it works like an individual input shortcut—just with a name you choose.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
+                Text("A preset applies your chosen inputs, brightness, color profiles, and supported display controls together. Settings you leave unchanged are not applied.")
+                Text("Use the actions menu above to save current brightness and supported monitor color, contrast, and audio settings.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Section("Preset") {
                 TextField("Name", text: $editedName)
@@ -147,6 +149,28 @@ private struct PresetDetailView: View {
                     }
                 }
             }
+            Section("Appearance & Audio") {
+                ForEach(monitorStore.monitors) { monitor in
+                    PresetAppearanceSettings(preset: preset, monitor: monitor, presetStore: presetStore)
+                }
+                ForEach((preset.displaySettings ?? []).filter { settings in
+                    !monitorStore.monitors.contains { $0.id == settings.id }
+                }) { settings in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(settings.displayName)
+                            Text("Disconnected · saved settings kept").font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button("Remove") {
+                            var updated = preset
+                            updated.displaySettings?.removeAll { $0.id == settings.id }
+                            presetStore.updatePreset(updated)
+                        }
+                    }
+                }
+            }
+
         }
         .formStyle(.grouped)
     }

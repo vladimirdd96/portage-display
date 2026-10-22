@@ -2,16 +2,17 @@ import Foundation
 import Observation
 
 enum AppFeature: String, CaseIterable, Identifiable, Codable {
-    case inputs, brightness, hardware, modes, profiles, presets
+    case inputs, brightness, hardware, monitorColors, modes, profiles, presets
     var id: Self { self }
     var title: String {
         switch self {
         case .inputs: "Input Switching"
         case .brightness: "Brightness"
         case .hardware: "Contrast & Display Audio"
+        case .monitorColors: "Monitor Color Controls"
         case .modes: "Resolution & Refresh Rate"
-        case .profiles: "Color Profiles"
-        case .presets: "Multi-display Presets"
+        case .profiles: "macOS Color Profiles"
+        case .presets: "Display Presets"
         }
     }
 }
@@ -27,6 +28,12 @@ final class FeaturePreferences {
         self.defaults = defaults
         disabled = Set(defaults.stringArray(forKey: "features.disabled") ?? [])
         hidden = Set(defaults.stringArray(forKey: "features.hiddenFromMenu") ?? [])
+        // Preserve explicitly pinned ICC controls; otherwise prefer monitor-native colors.
+        if !defaults.bool(forKey: "menu.monitorColorsIntroduced") {
+            if !defaults.bool(forKey: "menu.showProfilesInline") { hidden.insert(AppFeature.profiles.rawValue) }
+            defaults.set(hidden.sorted(), forKey: "features.hiddenFromMenu")
+            defaults.set(true, forKey: "menu.monitorColorsIntroduced")
+        }
     }
     func enabled(_ feature: AppFeature) -> Bool { !disabled.contains(feature.rawValue) }
     func shown(_ feature: AppFeature) -> Bool { enabled(feature) && !hidden.contains(feature.rawValue) }

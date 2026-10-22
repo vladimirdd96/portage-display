@@ -19,7 +19,7 @@ struct PresetRow: View {
                 Spacer()
 
                 Text(preset.hotkeyName.flatMap { KeyboardShortcuts.getShortcut(for: KeyboardShortcuts.Name($0)) }?.description
-                    ?? "\(preset.assignments.count) display(s)")
+                    ?? "\(preset.displayCount) display(s)")
                 .font(.subheadline)
                 .foregroundStyle(.tertiary)
             }
@@ -32,8 +32,7 @@ struct PresetRow: View {
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .help(preset.assignments.isEmpty ? "No display inputs saved in this preset" :
-            "Apply preset: " + preset.assignments.map { $0.targetInputLabel }.joined(separator: ", "))
+        .help((preset.assignments.map { $0.targetInputLabel } + (preset.displaySettings ?? []).map { $0.summary }).joined(separator: ", "))
         .onHover { isHovered = $0 }
     }
 }

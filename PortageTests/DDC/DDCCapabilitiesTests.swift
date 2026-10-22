@@ -16,4 +16,10 @@ struct DDCCapabilitiesTests {
         #expect(DDCCapabilities.features(in: "vcp(10 62") == nil)
         #expect(DDCCapabilities.features(in: "vcp(zz)") == nil)
     }
+    @Test func readsOnlyTopLevelAdvertisedColorPresets() {
+        #expect(DDCCapabilities.values(for: 0x14, in: "vcp(60(14 01) 14 (01 05 08 0B 0C) 16 18 1A)") == [1, 5, 8, 11, 12])
+        #expect(DDCCapabilities.values(for: 0x14, in: "vcp(60(14 01) 16)").isEmpty)
+        #expect(DDCCapabilities.values(for: 0x14, in: "vcp(14(01 05)").isEmpty)
+    }
+
 }

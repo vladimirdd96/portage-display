@@ -15,6 +15,8 @@ struct MonitorConfig: Codable, Identifiable, Sendable {
     var hardwareMaximums: [String: UInt16]?
     var cycleInputValues: [UInt16]?
     var lastSelectedInputValue: UInt16?
+    var colorPresetValues: [UInt16]?
+    var currentColorPreset: UInt16?
     var isMuted: Bool?
     var orderedCycleInputs: [InputMapping] {
         let values = cycleInputValues ?? inputMappings.map(\.ddcValue)
@@ -24,5 +26,6 @@ struct MonitorConfig: Codable, Identifiable, Sendable {
             return inputMappings.first { $0.ddcValue == value }
         }
     }
+    var hasMonitorColorControls: Bool { !(colorPresetValues ?? []).isEmpty || HardwareFeature.allCases.filter(\.isColor).contains { hardwareLevels?[$0.key] != nil } }
     var isBuiltIn: Bool { edidUUID.hasPrefix("native-") }
 }
