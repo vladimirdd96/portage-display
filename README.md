@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.14.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.15.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 
@@ -13,7 +13,7 @@ The initial release is ad-hoc signed, **not notarized**. macOS may block its fir
 ## Features
 
 - Discover multiple displays when opening controls and after display connection changes.
-- Switch external monitor inputs directly, assign shortcuts to individual inputs, or cycle an ordered selection with one shortcut.
+- Switch external monitor inputs directly, assign shortcuts to individual inputs, or cycle an ordered selection with one shortcut. Input commands use the existing connection without a full refresh first. Cycling advances from the last known input; opening the menu refreshes it after changes made outside the app.
 - Adjust built-in display brightness and supported external DDC brightness, contrast, and speaker volume.
 - Choose which displays and features appear in the menu. Expand entire rows and optionally remember their state.
 - Use native Settings with a horizontal display selector, input presets, and separate feature and menu customization controls.

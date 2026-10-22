@@ -165,14 +165,15 @@ struct MonitorStoreTests {
         #expect(store.monitors[0].currentInputValue == 5)
     }
 
-    @Test("SwitchInput skips when fresh state matches requested input")
-    func switchInputSkipsNoOp() async throws {
+    @Test("Explicit input requests always write even if the cached value matches")
+    func switchInputWritesExplicitRequest() async throws {
         let (store, mock) = await makeStore()
         await store.discover()
         #expect(store.monitors[0].currentInputValue == 8)
         try await store.switchInput(monitorID: "uuid-1", to: 8)
         let log = await mock.writeLog
-        #expect(log.isEmpty)
+        #expect(log.count == 1)
+        #expect(log.first?.value == 8)
     }
 
     @Test("SwitchInput writes when cached state is stale")
@@ -190,7 +191,7 @@ struct MonitorStoreTests {
         #expect(store.monitors[0].currentInputValue == 8)
     }
 
-    @Test("SwitchInput writes when discovery fails instead of trusting cache")
+    @Test("SwitchInput bypasses discovery even when discovery would fail")
     func switchInputWritesAfterDiscoveryFailure() async throws {
         let (store, mock) = await makeStore()
         await store.discover()

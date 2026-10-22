@@ -13,6 +13,7 @@ final class MonitorStore {
     private let defaults: UserDefaults
     private var savedConfigs: [String: MonitorConfig] = [:]
     private var discoveryTask: Task<Void, Never>?
+    private var inputRevisions: [String: UInt64] = [:]
 
     private var brightnessTasks: [String: Task<Void, Never>] = [:]
     var configuredMonitors: [MonitorConfig] { Array(savedConfigs.values) }
@@ -49,6 +50,7 @@ final class MonitorStore {
 
     private func performDiscovery() async {
         logger.info("Starting monitor discovery")
+        let revisionsAtStart = inputRevisions
 
         do {
             let displays = try await ddcService.discoverDisplays()
@@ -128,12 +130,25 @@ final class MonitorStore {
                     updatedMonitors[index].isMuted = result.current == 1
                 }
             }
+            // A refresh may have read an input before a shortcut changed it.
+            // Keep that refresh from overwriting the newer selection.
+            for index in updatedMonitors.indices {
+                let id = updatedMonitors[index].id
+                if inputRevisions[id, default: 0] != revisionsAtStart[id, default: 0],
+                   let latest = monitors.first(where: { $0.id == id }) {
+                    updatedMonitors[index].currentInputValue = latest.currentInputValue
+                    updatedMonitors[index].lastSelectedInputValue = latest.lastSelectedInputValue
+                }
+            }
             monitors = updatedMonitors
             persistConfigs()
             logger.info("Discovery complete: \(updatedMonitors.count) monitors")
         } catch {
             for index in monitors.indices {
-                monitors[index].currentInputValue = nil
+                let id = monitors[index].id
+                if inputRevisions[id, default: 0] == revisionsAtStart[id, default: 0] {
+                    monitors[index].currentInputValue = nil
+                }
             }
             persistConfigs()
             logger.error("Discovery failed: \(error.localizedDescription, privacy: .public)")
@@ -142,16 +157,20 @@ final class MonitorStore {
 
     func switchInput(monitorID: String, to inputValue: UInt16) async throws {
         try features.require(.inputs)
-        await discover()
         try await applyInput(monitorID: monitorID, to: inputValue)
     }
 
     private func applyInput(monitorID: String, to inputValue: UInt16) async throws {
         try features.require(.inputs)
-        if let current = monitors.first(where: { $0.edidUUID == monitorID })?.currentInputValue,
-           current == inputValue { return }
-
+        // Always send explicit requests: the cached input may have changed via
+        // the monitor's own controls or another computer.
         do {
+            try await ddcService.writeVCP(VCP_INPUT_SOURCE, value: inputValue, display: monitorID)
+        } catch DDCError.serviceUnavailable {
+            // Cold launch/reconnection only: bind services without refreshing
+            // brightness, volume, contrast, or the other monitors' controls.
+            _ = try await ddcService.discoverDisplays()
+            try features.require(.inputs)
             try await ddcService.writeVCP(VCP_INPUT_SOURCE, value: inputValue, display: monitorID)
         } catch {
             try await Task.sleep(for: .milliseconds(200))
@@ -159,6 +178,8 @@ final class MonitorStore {
             try await ddcService.writeVCP(VCP_INPUT_SOURCE, value: inputValue, display: monitorID)
         }
 
+        inputRevisions[monitorID, default: 0] += 1
+        let requestedRevision = inputRevisions[monitorID]
         if let idx = monitors.firstIndex(where: { $0.edidUUID == monitorID }) {
             monitors[idx].currentInputValue = inputValue
             monitors[idx].lastSelectedInputValue = inputValue
@@ -166,12 +187,15 @@ final class MonitorStore {
         }
 
         try await Task.sleep(for: .milliseconds(500))
+        guard inputRevisions[monitorID] == requestedRevision else { return }
 
         do {
             let result = try await ddcService.readVCP(VCP_INPUT_SOURCE, display: monitorID)
+            guard inputRevisions[monitorID] == requestedRevision else { return }
             if result.current != inputValue,
                let idx = monitors.firstIndex(where: { $0.edidUUID == monitorID })
             {
+                inputRevisions[monitorID, default: 0] += 1
                 monitors[idx].currentInputValue = result.current
                 monitors[idx].lastSelectedInputValue = result.current
                 persistConfigs()
@@ -201,7 +225,8 @@ final class MonitorStore {
         // Ignore repeats while the monitor is still processing its previous switch.
         guard cyclingMonitors.insert(monitorID).inserted else { return }
         defer { cyclingMonitors.remove(monitorID) }
-        await discover()
+        // Use the last known input so the write is the first hardware command.
+        // Menu opens and display connection changes refresh this state separately.
         guard let monitor = monitors.first(where: { $0.id == monitorID }), !monitor.isBuiltIn else {
             throw CycleError.unavailable
         }

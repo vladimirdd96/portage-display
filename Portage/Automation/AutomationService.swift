@@ -11,7 +11,7 @@ final class AutomationService: Sendable {
     }
 
     func ensureDiscovered() async {
-        if monitorStore.monitors.isEmpty || monitorStore.isDiscovering {
+        if monitorStore.monitors.isEmpty {
             await monitorStore.discover()
         }
     }

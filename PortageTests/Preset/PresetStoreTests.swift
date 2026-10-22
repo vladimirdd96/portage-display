@@ -82,8 +82,8 @@ struct PresetStoreTests {
         #expect(store.lastActivationError == nil)
     }
 
-    @Test("Activate preset refreshes stale inputs with one discovery")
-    func activatePresetRefreshesStaleInputs() async {
+    @Test("Activate preset writes explicit inputs without rediscovery")
+    func activatePresetWritesWithoutDiscovery() async {
         let (store, _, mock) = await makeStores()
         let preset = Preset(
             name: "Current Inputs",
@@ -102,7 +102,7 @@ struct PresetStoreTests {
         let discoveryCount = await mock.discoveryCount
         #expect(log.count == 2)
         #expect(Set(log.map(\.value)) == [8, 19])
-        #expect(discoveryCount == 2)
+        #expect(discoveryCount == 1)
         #expect(store.lastActivationError == nil)
     }
 

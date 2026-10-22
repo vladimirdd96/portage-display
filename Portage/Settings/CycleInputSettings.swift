@@ -21,7 +21,7 @@ struct CycleInputSettings: View {
             }
             DisclosureGroup("Included Inputs & Order") {
                 Text(
-                    "Each press advances to the next selected input and wraps around. Select at least two; use the arrows to reorder."
+                    "Each press advances from the last known input and wraps around. Select at least two; use the arrows to reorder."
                 )
                 .font(.caption).foregroundStyle(.secondary)
                 ForEach(monitor.orderedCycleInputs) { input in
