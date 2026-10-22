@@ -120,6 +120,24 @@ struct PresetStoreTests {
         #expect(store.lastActivationError != nil)
     }
 
+    @Test("An unconfirmed switch must not announce that a preset activated")
+    func activateUnconfirmed() async {
+        let (store, monitors, mock) = await makeStores()
+        let toast = ToastState()
+        store.setToastState(toast)
+        await mock.setShouldFailRead(true)
+        let preset = Preset(name: "Unconfirmed", assignments: [
+            PresetAssignment(monitorEdidUUID: "uuid-1", targetInputValue: 5, targetInputLabel: "HDMI-1")
+        ])
+        await store.activate(preset: preset)
+        #expect(store.lastActivationError != nil)
+        #expect(toast.currentToast?.isError == true)
+        #expect(toast.currentToast?.text.contains("Activated") == false)
+        #expect(monitors.monitors.first?.currentInputValue == nil)
+        #expect(monitors.monitors.first?.lastSelectedInputValue == 5)
+        #expect(await mock.writeLog.count == 1)
+    }
+
     @Test("Persistence round-trips presets via UserDefaults")
     func persistence() async {
         let suiteName = "test-\(UUID().uuidString)"

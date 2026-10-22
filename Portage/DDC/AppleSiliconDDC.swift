@@ -29,6 +29,7 @@ nonisolated public class AppleSiliconDDC: NSObject {
     public var transportDownstream: String = ""
     public var service: IOAVService?
     public var serviceLocation: Int = 0
+    public var ddcChipAddress: UInt32 = 0x37
     public var displayAttributes: NSDictionary?
   }
 
@@ -81,11 +82,11 @@ nonisolated public class AppleSiliconDDC: NSObject {
     return true
   }
 
-  static public func read(service: IOAVService?, command: UInt8, writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, readSleepTime: UInt32? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> (current: UInt16, max: UInt16)? {
+  static public func read(service: IOAVService?, command: UInt8, chipAddress: UInt32 = 0x37, writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, readSleepTime: UInt32? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> (current: UInt16, max: UInt16)? {
     var values: (UInt16, UInt16)?
     var send: [UInt8] = [command]
     var reply = [UInt8](repeating: 0, count: 11)
-    if Self.performDDCCommunication(service: service, send: &send, reply: &reply, writeSleepTime: writeSleepTime, numOfWriteCycles: numOfWriteCycles ?? 1, readSleepTime: readSleepTime, numOfRetryAttemps: numOfRetryAttemps, retrySleepTime: retrySleepTime) {
+    if Self.performDDCCommunication(service: service, send: &send, reply: &reply, chipAddress: chipAddress, writeSleepTime: writeSleepTime, numOfWriteCycles: numOfWriteCycles ?? 1, readSleepTime: readSleepTime, numOfRetryAttemps: numOfRetryAttemps, retrySleepTime: retrySleepTime) {
       guard isValidVCPReply(reply, for: command) else {
         logger.warning("DDC reply passed checksum but VCP header mismatch: expected=0x\(String(command, radix: 16)) got=0x\(String(reply[4], radix: 16))")
         return nil
@@ -100,19 +101,18 @@ nonisolated public class AppleSiliconDDC: NSObject {
   }
 
   // Read the monitor's advertised ports, without probing or switching any input.
-  static func capabilities(service: IOAVService?) -> String? {
+  static func capabilities(service: IOAVService?, chipAddress: UInt32 = 0x37) -> String? {
     guard let service else { return nil }
     var bytes: [UInt8] = []
     for _ in 0..<128 {
       let offset = bytes.count
-      var packet: [UInt8] = [0x83, 0xF3, UInt8(offset >> 8), UInt8(offset & 255), 0]
-      packet[4] = packet.prefix(4).reduce(UInt8(0x6E ^ 0x51), ^)
+      var packet = ddcPacket(opcode: 0xF3, payload: [UInt8(offset >> 8), UInt8(offset & 255)])
       var fragment: [UInt8]?
       for _ in 0..<3 {
-        guard IOAVServiceWriteI2C(service, 0x37, 0x51, &packet, UInt32(packet.count)) == 0 else { continue }
+        guard IOAVServiceWriteI2C(service, chipAddress, 0x51, &packet, UInt32(packet.count)) == 0 else { continue }
         usleep(100_000)
         var reply = [UInt8](repeating: 0, count: 38)
-        guard IOAVServiceReadI2C(service, 0x37, 0x51, &reply, UInt32(reply.count)) == 0 else { continue }
+        guard IOAVServiceReadI2C(service, chipAddress, 0x51, &reply, UInt32(reply.count)) == 0 else { continue }
         let length = Int(reply[1] & 0x7F)
         guard reply[0] == 0x6E, length >= 3, length + 3 <= reply.count,
               reply[2] == 0xE3, Int(reply[3]) * 256 + Int(reply[4]) == offset,
@@ -131,10 +131,10 @@ nonisolated public class AppleSiliconDDC: NSObject {
     return nil
   }
 
-  static public func write(service: IOAVService?, command: UInt8, value: UInt16, writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> Bool {
+  static public func write(service: IOAVService?, command: UInt8, value: UInt16, chipAddress: UInt32 = 0x37, writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> Bool {
     var send: [UInt8] = [command, UInt8(value >> 8), UInt8(value & 255)]
     var reply: [UInt8] = []
-    return Self.performDDCCommunication(service: service, send: &send, reply: &reply, writeSleepTime: writeSleepTime, numOfWriteCycles: numOfWriteCycles, numOfRetryAttemps: numOfRetryAttemps, retrySleepTime: retrySleepTime)
+    return Self.performDDCCommunication(service: service, send: &send, reply: &reply, chipAddress: chipAddress, writeSleepTime: writeSleepTime, numOfWriteCycles: numOfWriteCycles, numOfRetryAttemps: numOfRetryAttemps, retrySleepTime: retrySleepTime)
   }
 
   static func interpretReadResult(writeSucceeded: Bool, readReturnCode: Int32, reply: inout [UInt8]) -> Bool {
@@ -143,28 +143,27 @@ nonisolated public class AppleSiliconDDC: NSObject {
     return checksum(chk: 0x50, data: &reply, start: 0, end: reply.count - 2) == reply[reply.count - 1]
   }
 
-  static func performDDCCommunication(service: IOAVService?, send: inout [UInt8], reply: inout [UInt8], writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, readSleepTime: UInt32? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> Bool {
+  static func performDDCCommunication(service: IOAVService?, send: inout [UInt8], reply: inout [UInt8], chipAddress: UInt32 = 0x37, writeSleepTime: UInt32? = nil, numOfWriteCycles: UInt8? = nil, readSleepTime: UInt32? = nil, numOfRetryAttemps: UInt8? = nil, retrySleepTime: UInt32? = nil) -> Bool {
     let dataAddress = ARM64_DDC_DATA_ADDRESS
     var success = false
     guard service != nil else {
       return success
     }
-    var packet: [UInt8] = [UInt8(0x80 | (send.count + 1)), UInt8(send.count)] + send + [0] // Note: the last byte is the place of the checksum, see next line!
-    packet[packet.count - 1] = self.checksum(chk: ARM64_DDC_7BIT_ADDRESS << 1 ^ dataAddress, data: &packet, start: 0, end: packet.count - 2)
+    var packet = ddcPacket(opcode: reply.isEmpty ? 0x03 : 0x01, payload: send)
     let totalAttempts = Int(numOfRetryAttemps ?? 4) + 1
     let isRead = !reply.isEmpty
 
     // Flush stale data from the I2C bus before sending the command
     if isRead {
       var flush = [UInt8](repeating: 0, count: 11)
-      IOAVServiceReadI2C(service, UInt32(ARM64_DDC_7BIT_ADDRESS), UInt32(dataAddress), &flush, UInt32(flush.count))
+      IOAVServiceReadI2C(service, chipAddress, UInt32(dataAddress), &flush, UInt32(flush.count))
       usleep(10000)
     }
 
     for attempt in 1 ... totalAttempts {
       for _ in 1 ... max((numOfWriteCycles ?? 2) + 0, 1) {
         usleep(writeSleepTime ?? 20000)
-        let writeResult = IOAVServiceWriteI2C(service, UInt32(ARM64_DDC_7BIT_ADDRESS), UInt32(dataAddress), &packet, UInt32(packet.count))
+        let writeResult = IOAVServiceWriteI2C(service, chipAddress, UInt32(dataAddress), &packet, UInt32(packet.count))
         success = writeResult == 0
         logger.debug("I2C write attempt \(attempt)/\(totalAttempts): result=\(writeResult)")
       }
@@ -172,7 +171,7 @@ nonisolated public class AppleSiliconDDC: NSObject {
         // Try multiple reads per write — the DDC response may arrive after bus noise
         for readPass in 1 ... 3 {
           usleep(readPass == 1 ? (readSleepTime ?? 100000) : 50000)
-          let readResult = IOAVServiceReadI2C(service, UInt32(ARM64_DDC_7BIT_ADDRESS), UInt32(dataAddress), &reply, UInt32(reply.count))
+          let readResult = IOAVServiceReadI2C(service, chipAddress, UInt32(dataAddress), &reply, UInt32(reply.count))
           success = interpretReadResult(writeSucceeded: success, readReturnCode: readResult, reply: &reply)
           let replyHex = reply.map { String(format: "%02X", $0) }.joined(separator: " ")
           logger.debug("I2C read attempt \(attempt)/\(totalAttempts) pass \(readPass): result=\(readResult) checksum_ok=\(success) reply=[\(replyHex)]")
@@ -187,6 +186,20 @@ nonisolated public class AppleSiliconDDC: NSObject {
     }
     logger.info("DDC \(isRead ? "read" : "write") failed after \(totalAttempts) attempts")
     return success
+  }
+
+  // The bridge address selects the transport, not the monitor's wire address.
+  // DDC checksums must keep using the actual 0x6E destination and 0x51 source.
+  static func ddcPacket(opcode: UInt8, payload: [UInt8]) -> [UInt8] {
+    var packet = [UInt8(0x80 | (payload.count + 1)), opcode] + payload
+    packet.append(packet.reduce(UInt8(0x6E ^ 0x51), ^))
+    return packet
+  }
+
+  // MCDP29xx routing is documented by waydabber/m1ddc (MIT).
+  // Select it only for a positively identified bridge, never by monitor model.
+  static func ddcChipAddress(providerClass: String?) -> UInt32 {
+    providerClass == "AppleDCPMCDP29XX" ? 0xB7 : 0x37
   }
 
   // DDC checksum calculator
@@ -294,6 +307,13 @@ nonisolated public class AppleSiliconDDC: NSObject {
   }
 
   static func setIORegServiceDCPAVServiceProxy(entry: io_service_t, ioregService: inout IOregService) {
+    var parent: io_registry_entry_t = IO_OBJECT_NULL
+    var providerClass: String?
+    if IORegistryEntryGetParentEntry(entry, kIOServicePlane, &parent) == KERN_SUCCESS {
+      providerClass = IORegistryEntryCreateCFProperty(parent, "EPICProviderClass" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue() as? String
+      IOObjectRelease(parent)
+    }
+    ioregService.ddcChipAddress = ddcChipAddress(providerClass: providerClass)
     if let unmanagedLocation = IORegistryEntryCreateCFProperty(entry, "Location" as CFString, kCFAllocatorDefault, IOOptionBits(kIORegistryIterateRecursively)), let location = unmanagedLocation.takeRetainedValue() as? String {
       ioregService.location = location
       if location == "External" {

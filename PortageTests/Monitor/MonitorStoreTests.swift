@@ -156,13 +156,16 @@ struct MonitorStoreTests {
         #expect(store.monitors[0].currentInputValue == 8)
     }
 
-    @Test("SwitchInput keeps optimistic value when readback fails")
-    func switchInputKeepsOptimisticOnReadFailure() async throws {
+    @Test("SwitchInput reports unconfirmed when readback fails, keeping only a cycle fallback")
+    func switchInputReportsUnconfirmedOnReadFailure() async throws {
         let (store, mock) = await makeStore()
         await store.discover()
         await mock.setShouldFailRead(true)
-        try await store.switchInput(monitorID: "uuid-1", to: 5)
-        #expect(store.monitors[0].currentInputValue == 5)
+        await #expect(throws: DDCError.self) {
+            try await store.switchInput(monitorID: "uuid-1", to: 5)
+        }
+        #expect(store.monitors[0].currentInputValue == nil)
+        #expect(store.monitors[0].lastSelectedInputValue == 5)
     }
 
     @Test("Explicit input requests always write even if the cached value matches")
@@ -212,7 +215,9 @@ struct MonitorStoreTests {
         #expect(store.monitors[0].currentInputValue == 8)
 
         await mock.setShouldFailRead(true)
-        try await store.switchInput(monitorID: "uuid-1", to: 8)
+        await #expect(throws: DDCError.self) {
+            try await store.switchInput(monitorID: "uuid-1", to: 8)
+        }
 
         let log = await mock.writeLog
         #expect(log.count == 1)

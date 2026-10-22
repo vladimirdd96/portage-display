@@ -34,7 +34,7 @@ actor DisplayBus {
     func read(vcp: UInt8) throws -> (current: UInt16, max: UInt16) {
         var delay = retryConfig.initialDelay
         for attempt in 1...retryConfig.maxAttempts {
-            if let result = AppleSiliconDDC.read(service: ioregService.service, command: vcp) {
+            if let result = AppleSiliconDDC.read(service: ioregService.service, command: vcp, chipAddress: ioregService.ddcChipAddress) {
                 if attempt > 1 {
                     logger.info("VCP 0x\(String(vcp, radix: 16)) read succeeded on backoff attempt \(attempt) for \(self.info.edidUUID, privacy: .public)")
                 }
@@ -50,7 +50,7 @@ actor DisplayBus {
     }
 
     func write(vcp: UInt8, value: UInt16) throws {
-        let ok = AppleSiliconDDC.write(service: ioregService.service, command: vcp, value: value)
+        let ok = AppleSiliconDDC.write(service: ioregService.service, command: vcp, value: value, chipAddress: ioregService.ddcChipAddress)
         guard ok else {
             throw DDCError.writeFailed(vcp: vcp, value: value, monitor: info.edidUUID)
         }

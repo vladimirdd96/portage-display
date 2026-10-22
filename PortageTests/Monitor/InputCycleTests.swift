@@ -43,8 +43,8 @@ struct InputCycleTests {
     @Test func failedReadUsesLastSelectedInput() async throws {
         let (store, mock, _) = await setup()
         await mock.setShouldFailRead(true)
-        try await store.cycleInput(monitorID: "cycle-test")
-        try await store.cycleInput(monitorID: "cycle-test")
+        await #expect(throws: DDCError.self) { try await store.cycleInput(monitorID: "cycle-test") }
+        await #expect(throws: DDCError.self) { try await store.cycleInput(monitorID: "cycle-test") }
         #expect(await mock.writeLog.map(\.value) == [18, 15])
     }
 

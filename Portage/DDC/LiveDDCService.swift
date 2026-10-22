@@ -44,7 +44,7 @@ final class LiveDDCService: DDCService, @unchecked Sendable {
                 alphanumericSerial: details.alphanumericSerialNumber
             )
             info.systemDisplayID = matched.displayID == 0 ? nil : matched.displayID
-            let capabilities = capabilitiesCache[info.edidUUID] ?? AppleSiliconDDC.capabilities(service: matched.service)
+            let capabilities = capabilitiesCache[info.edidUUID] ?? AppleSiliconDDC.capabilities(service: matched.service, chipAddress: details.ddcChipAddress)
             if let capabilities {
                 capabilitiesCache[info.edidUUID] = capabilities
                 info.advertisedInputs = ManufacturerInputTable.advertisedMappings(capabilities, manufacturer: info.manufacturer)
@@ -54,7 +54,7 @@ final class LiveDDCService: DDCService, @unchecked Sendable {
 
             // Health check: probe I2C to detect broken services early
             var probe = [UInt8](repeating: 0, count: 1)
-            let probeResult = IOAVServiceReadI2C(matched.service, UInt32(ARM64_DDC_7BIT_ADDRESS), UInt32(ARM64_DDC_DATA_ADDRESS), &probe, 1)
+            let probeResult = IOAVServiceReadI2C(matched.service, details.ddcChipAddress, UInt32(ARM64_DDC_DATA_ADDRESS), &probe, 1)
             if probeResult != 0 {
                 logger.warning("IOAVService I2C unavailable for \(details.productName, privacy: .public) (error=\(probeResult)), skipping DDC for this display")
             } else {
@@ -82,11 +82,9 @@ final class LiveDDCService: DDCService, @unchecked Sendable {
             throw DDCError.serviceUnavailable(monitor: display)
         }
         let result = try await bus.read(vcp: vcp)
-        // Some Dell firmware mirrors the one-byte input code into both bytes.
-        let current = result.current
-        if vcp == VCP_INPUT_SOURCE, current > 255, current >> 8 == current & 255 {
-            return (current & 255, result.max)
-        }
+        let normalized = ManufacturerInputTable.normalizedInputValue(
+            result.current, manufacturer: bus.info.manufacturer)
+        if vcp == VCP_INPUT_SOURCE { return (normalized, result.max) }
         return result
     }
 

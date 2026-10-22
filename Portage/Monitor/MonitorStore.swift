@@ -206,7 +206,15 @@ final class MonitorStore {
         } catch let error as DDCError where error.isSwitchRejected {
             throw error
         } catch {
+            guard inputRevisions[monitorID] == requestedRevision else { return }
+            // I2C accepting a write does not mean the monitor applied it.
+            // Keep the cycle fallback, but stop presenting it as a confirmed input.
+            if let index = monitors.firstIndex(where: { $0.id == monitorID }) {
+                monitors[index].currentInputValue = nil
+                persistConfigs()
+            }
             logger.warning("Post-switch verify failed for \(monitorID, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            throw DDCError.switchUnconfirmed(monitor: monitorID)
         }
     }
 

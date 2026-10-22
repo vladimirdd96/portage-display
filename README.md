@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.15.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.16.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 
@@ -15,7 +15,7 @@ The initial release is ad-hoc signed, **not notarized**. macOS may block its fir
 - Discover multiple displays when opening controls and after display connection changes.
 - Switch external monitor inputs directly, assign shortcuts to individual inputs, or cycle an ordered selection with one shortcut. Input commands use the existing connection without a full refresh first. Cycling advances from the last known input; opening the menu refreshes it after changes made outside the app.
 - Adjust built-in display brightness and supported external DDC brightness, contrast, and speaker volume.
-- Choose which displays and features appear in the menu. Expand entire rows and optionally remember their state.
+- Choose which displays and features appear in the menu. Expand entire rows and optionally remember their state. Clicking outside the menu closes it.
 - Use native Settings with a horizontal display selector, input presets, and separate feature and menu customization controls.
 - Choose System, Light, or Dark appearance with native macOS materials.
 - Group display modes by refresh rate; applying a mode includes a 15-second automatic rollback unless confirmed.
@@ -25,9 +25,11 @@ The initial release is ad-hoc signed, **not notarized**. macOS may block its fir
 
 ## Monitor compatibility
 
-External controls require DDC/CI support and a compatible connection. Enable DDC/CI in your monitor’s settings if needed. Docks, adapters, KVMs, and some monitors can prevent DDC communication. Available controls vary by display.
+External controls require DDC/CI support and a compatible connection. MCDP29xx HDMI bridge routing is selected automatically when macOS identifies that controller, including compatible built-in HDMI ports. Enable DDC/CI in your monitor’s settings if needed. Docks, adapters, KVMs, and some monitors can prevent DDC communication. Available controls vary by display.
 
 The input list comes from monitor capabilities and user configuration. **An advertised input does not prove a powered-on computer is sending a signal.** Automatic skipping of powered-off computers is not implemented. Configure cycle membership manually. After switching away from the Mac’s input, some monitors stop responding to the Mac; a keyboard shortcut cannot guarantee switching back in that case.
+
+If the app cannot read back the selected input, it reports “Input command sent, but the monitor did not confirm the switch” instead of claiming preset activation. Some monitors stop responding after switching away, so this warning alone does not prove that the switch failed.
 
 Built-in displays do not have selectable video inputs. Unsupported controls are hidden or unavailable. Private Apple display APIs are used for DDC and built-in brightness; future macOS updates may affect compatibility. This is not a full BetterDisplay replacement (for example, it does not create virtual displays or provide XDR brightness).
 
@@ -68,7 +70,7 @@ Input names and monitor names must match your configuration; URL-encode spaces. 
 
 ## License and credits
 
-[MIT](LICENSE). Original Portage copyright © 2025 eve0415, preserved in this fork. Additional credits and license texts for KeyboardShortcuts and AppleSiliconDDC are in [ThirdPartyNotices.txt](Portage/ThirdPartyNotices.txt) and the app’s About section. This project contains no BetterDisplay binaries, extracted proprietary code, personal preferences, or signing credentials.
+[MIT](LICENSE). Original Portage copyright © 2025 eve0415, preserved in this fork. Additional credits and license texts for KeyboardShortcuts, AppleSiliconDDC, and the m1ddc HDMI routing reference are in [ThirdPartyNotices.txt](Portage/ThirdPartyNotices.txt) and the app’s About section. This project contains no BetterDisplay binaries, extracted proprietary code, personal preferences, or signing credentials.
 
 ## Feedback
 

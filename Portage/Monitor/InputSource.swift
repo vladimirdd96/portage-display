@@ -22,6 +22,16 @@ enum KnownManufacturer: String, CaseIterable, Sendable {
 }
 
 enum ManufacturerInputTable {
+    static func normalizedInputValue(_ value: UInt16, manufacturer: String) -> UInt16 {
+        guard value > 255 else { return value }
+        // Some Dell firmware leaves nonzero data in the high byte (for example
+        // 0x1111 for HDMI 1 and 0x1112 for HDMI 2). The input code is the low byte.
+        if manufacturer == KnownManufacturer.dell.rawValue || value >> 8 == value & 255 {
+            return value & 255
+        }
+        return value
+    }
+
     static let defaults: [KnownManufacturer: [InputMapping]] = [
         .msi: [
             InputMapping(ddcValue: 5, label: "HDMI-1"),

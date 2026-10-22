@@ -6,6 +6,7 @@ enum DDCError: Error, Sendable, LocalizedError {
     case writeFailed(vcp: UInt8, value: UInt16, monitor: String)
     case serviceUnavailable(monitor: String)
     case switchRejected(monitor: String, requested: UInt16, actual: UInt16)
+    case switchUnconfirmed(monitor: String)
 
     var isSwitchRejected: Bool {
         if case .switchRejected = self { return true }
@@ -24,6 +25,8 @@ enum DDCError: Error, Sendable, LocalizedError {
             "Monitor service unavailable"
         case .switchRejected:
             "Input switch was rejected by the monitor"
+        case .switchUnconfirmed:
+            "Input command sent, but the monitor did not confirm the switch. Check its DDC/CI setting and connection."
         }
     }
 }

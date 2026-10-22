@@ -7,6 +7,8 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
     private let popover = NSPopover()
     private let environment: AppEnvironment
     private let store: MonitorStore
+    private var globalClickMonitor: Any?
+    private var localClickMonitor: Any?
 
     init(environment: AppEnvironment) {
         self.environment = environment
@@ -45,8 +47,47 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
     }
 
     func popoverDidClose(_ notification: Notification) {
+        stopClickAwayMonitoring()
         NotificationCenter.default.post(name: .portageMenuClosed, object: nil)
         popover.contentViewController = nil
+    }
+
+    func popoverDidShow(_ notification: Notification) {
+        stopClickAwayMonitoring()
+        let clicks: NSEvent.EventTypeMask = [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+        globalClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: clicks) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.popover.isShown, self.popoverShouldClose(self.popover) else { return }
+                self.popover.performClose(nil)
+            }
+        }
+        localClickMonitor = NSEvent.addLocalMonitorForEvents(matching: clicks) { [weak self] event in
+            MainActor.assumeIsolated {
+                guard let self, self.popover.isShown, self.popoverShouldClose(self.popover) else { return event }
+                let contentWindow = self.popover.contentViewController?.view.window
+                var clickedWindow = event.window
+                while let window = clickedWindow {
+                    if window === contentWindow { return event }
+                    clickedWindow = window.parent
+                }
+                // Native dropdown menus may extend beyond the popover.
+                if let window = event.window, window.level.rawValue >= NSWindow.Level.popUpMenu.rawValue { return event }
+                // Let the status item's own handler close or toggle the menu.
+                if let button = self.item.button, let window = button.window {
+                    let point = button.convert(window.convertPoint(fromScreen: NSEvent.mouseLocation), from: nil)
+                    if button.bounds.contains(point) { return event }
+                }
+                self.popover.performClose(nil)
+                return event // Preserve the click in the destination window.
+            }
+        }
+    }
+
+    private func stopClickAwayMonitoring() {
+        if let globalClickMonitor { NSEvent.removeMonitor(globalClickMonitor) }
+        if let localClickMonitor { NSEvent.removeMonitor(localClickMonitor) }
+        globalClickMonitor = nil
+        localClickMonitor = nil
     }
 
     @objc private func toggle() {
