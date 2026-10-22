@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard !ProcessInfo.processInfo.environment.keys.contains("XCTestBundlePath") else { return }
 
         AppAppearance.shared.apply()
+        AppUpdater.shared.start()
         settingsObserver = NotificationCenter.default.addObserver(
             forName: .portageOpenSettings, object: nil, queue: .main
         ) { [weak self] _ in

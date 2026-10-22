@@ -8,7 +8,9 @@ xcodebuild -project Portage.xcodeproj -scheme Portage -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath build \
   ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
 app="build/Build/Products/Release/Portage.app"
-codesign --force --deep --sign - "$app"
+# Xcode removes framework headers; reseal that framework, preserving its signed helpers.
+codesign --force --sign - "$app/Contents/Frameworks/Sparkle.framework"
+codesign --force --sign - "$app"
 codesign --verify --deep --strict "$app"
 archive="Portage-Display-${version}.zip"
 /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$app" "dist/$archive"

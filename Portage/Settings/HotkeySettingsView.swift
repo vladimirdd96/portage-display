@@ -8,10 +8,13 @@ struct HotkeySettingsView: View {
     var body: some View {
         Form {
             Section {
-                Text(
-                    "Record a key combination beside an action. Shortcuts work while you use other apps; reusing one moves it to the new action."
-                )
-                .font(.callout).foregroundStyle(.secondary)
+                Text("**One input:** Always switch one display to a specific input, such as HDMI 2.")
+                Text("**Cycle inputs:** Use one shortcut to step through your chosen inputs in order.")
+                Text("**Preset:** Apply saved input choices to one or more displays together, such as a Work setup.")
+            } header: {
+                Text("Ways to Switch")
+            } footer: {
+                Text("Click a shortcut field, then press your key combination. Shortcuts work in other apps. Reusing a combination moves it to the new action.")
             }
             if monitorStore.monitors.filter({ !$0.isBuiltIn }).isEmpty {
                 Section {
@@ -23,7 +26,9 @@ struct HotkeySettingsView: View {
                 ForEach(monitorStore.monitors.filter { !$0.isBuiltIn }) { monitor in
                     Section(monitor.displayName) {
                         CycleInputSettings(monitor: monitor, monitorStore: monitorStore, presetStore: presetStore)
-                        DisclosureGroup("Individual Input Shortcuts") {
+                        DisclosureGroup("Switch to One Input") {
+                            Text("Each shortcut always selects the input shown below on this display.")
+                                .font(.caption).foregroundStyle(.secondary)
                             ForEach(monitor.inputMappings) { input in
                                 HStack {
                                     Label(input.label, systemImage: "arrow.right.to.line")
@@ -53,7 +58,14 @@ struct HotkeySettingsView: View {
                 }
             }
 
-            Section("Presets") {
+            Section("Preset Shortcuts") {
+                if monitorStore.monitors.filter({ !$0.isBuiltIn }).count == 1 {
+                    Text("With one display, a preset containing one input performs the same switch as an individual input shortcut. Presets add a name and can include more displays later.")
+                        .font(.callout).foregroundStyle(.secondary)
+                } else {
+                    Text("Each shortcut applies all display input choices saved in that preset. Choose those inputs in Presets settings.")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
                 if presetStore.presets.isEmpty {
                     Text("No presets configured")
                         .foregroundStyle(.secondary)

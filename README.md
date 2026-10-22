@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.16.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.17.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 
@@ -70,8 +70,18 @@ Input names and monitor names must match your configuration; URL-encode spaces. 
 
 ## License and credits
 
-[MIT](LICENSE). Original Portage copyright © 2025 eve0415, preserved in this fork. Additional credits and license texts for KeyboardShortcuts, AppleSiliconDDC, and the m1ddc HDMI routing reference are in [ThirdPartyNotices.txt](Portage/ThirdPartyNotices.txt) and the app’s About section. This project contains no BetterDisplay binaries, extracted proprietary code, personal preferences, or signing credentials.
+[MIT](LICENSE). Original Portage copyright © 2025 eve0415, preserved in this fork. Additional credits and license texts for KeyboardShortcuts, AppleSiliconDDC, Sparkle, and the m1ddc HDMI routing reference are in [ThirdPartyNotices.txt](Portage/ThirdPartyNotices.txt) and the app’s About section. This project contains no BetterDisplay binaries, extracted proprietary code, personal preferences, or signing credentials.
 
 ## Feedback
 
 Please include your Mac model, macOS version, monitor model, cable/dock arrangement, and the control that fails when [opening an issue](https://github.com/vladimirdd96/portage-display/issues). Do not include monitor serial numbers, credentials, or other personal data.
+
+## In-app updates
+
+Starting with **1.17**, open **Settings → General → Updates → Check for Updates…** to download and install the latest release. You can also enable automatic update checks; installation remains your choice. Automatic checks are off by default.
+
+If you have 1.16 or earlier, install 1.17 manually once from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest). Later updates use the built-in updater. Sparkle verifies update archives with an Ed25519 public key embedded in the app. This is separate from Apple notarization; the initial download is still not notarized.
+
+### Publishing updates (maintainers)
+
+Increment both the app version and build number, then run `scripts/package.sh` and `scripts/sign-update.sh` on the release Mac. The signing script uses the `portage-display` key in the login Keychain and creates `appcast.xml` for the versioned GitHub release asset. Publish the exact ZIP and checksum under that tag, then publish the feed on `main`. Never replace a released archive with different bytes. The signing key must remain private and available for future releases; never commit or log it. Fork maintainers must generate their own key with Sparkle's `generate_keys --account <account>`, replace `SUPublicEDKey` and `SUFeedURL`, and change the signing script's account and download URL.

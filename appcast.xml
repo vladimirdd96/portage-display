@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Portage</title>
+        <item>
+            <title>1.17</title>
+            <pubDate>Thu, 22 Oct 2026 18:05:02 +0300</pubDate>
+            <link>https://github.com/vladimirdd96/portage-display</link>
+            <sparkle:version>19</sparkle:version>
+            <sparkle:shortVersionString>1.17</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.5</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/vladimirdd96/portage-display/releases/download/v1.17/Portage-Display-1.17.zip" length="5139321" type="application/octet-stream" sparkle:edSignature="MDT5bnNRu91qlyCWdinl9RylYk+VRBcgq/M6BwCP5gwavnpWlsDPzIzp3dm0RTPpfwNG6AOnG+MFXXuRtnOLAg=="/>
+        </item>
+    </channel>
+</rss>

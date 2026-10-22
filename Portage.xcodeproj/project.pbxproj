@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EA94B77A2FED3C7B0081E0B0 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = EA94B7332FED30000081E0B0 /* KeyboardShortcuts */; };
 		EA94B77B2FED3C7B0081E0B0 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = EA94B77C2FED3C7B0081E0B0 /* KeyboardShortcuts */; };
+		A11700000000000000000001 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A11700000000000000000002 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA94B77A2FED3C7B0081E0B0 /* KeyboardShortcuts in Frameworks */,
+				A11700000000000000000001 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +113,7 @@
 			name = Portage;
 			packageProductDependencies = (
 				EA94B7332FED30000081E0B0 /* KeyboardShortcuts */,
+				A11700000000000000000002 /* Sparkle */,
 			);
 			productName = Portage;
 			productReference = EA94B6F92FED25D00081E0B0 /* Portage.app */;
@@ -170,6 +173,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				EA94B7312FED30000081E0B0 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				A11700000000000000000003 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EA94B6FA2FED25D00081E0B0 /* Products */;
@@ -352,7 +356,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -365,7 +369,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.16;
+				MARKETING_VERSION = 1.17;
 				OTHER_LDFLAGS = (
 					"-framework",
 					IOKit,
@@ -391,7 +395,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -404,7 +408,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.16;
+				MARKETING_VERSION = 1.17;
 				OTHER_LDFLAGS = (
 					"-framework",
 					IOKit,
@@ -432,7 +436,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.16;
+				MARKETING_VERSION = 1.17;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.vladimirdd96.PortageDisplayTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -453,7 +457,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
-				MARKETING_VERSION = 1.16;
+				MARKETING_VERSION = 1.17;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.vladimirdd96.PortageDisplayTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -506,6 +510,11 @@
 				version = 3.1.0;
 			};
 		};
+		A11700000000000000000003 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+            isa = XCRemoteSwiftPackageReference;
+            repositoryURL = "https://github.com/sparkle-project/Sparkle";
+            requirement = { kind = exactVersion; version = 2.10.0; };
+        };
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -519,6 +528,11 @@
 			package = EA94B7312FED30000081E0B0 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
 			productName = KeyboardShortcuts;
 		};
+		A11700000000000000000002 /* Sparkle */ = {
+            isa = XCSwiftPackageProductDependency;
+            package = A11700000000000000000003 /* XCRemoteSwiftPackageReference "Sparkle" */;
+            productName = Sparkle;
+        };
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = EA94B6F12FED25D00081E0B0 /* Project object */;

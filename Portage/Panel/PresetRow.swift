@@ -32,6 +32,8 @@ struct PresetRow: View {
             .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
+        .help(preset.assignments.isEmpty ? "No display inputs saved in this preset" :
+            "Apply preset: " + preset.assignments.map { $0.targetInputLabel }.joined(separator: ", "))
         .onHover { isHovered = $0 }
     }
 }

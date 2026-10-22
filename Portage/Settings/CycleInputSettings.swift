@@ -19,6 +19,8 @@ struct CycleInputSettings: View {
                         among: ShortcutAssignment.names(monitors: monitorStore, presets: presetStore))
                 }
             }
+            Text("One shortcut steps through the selected inputs, then returns to the first.")
+                .font(.caption).foregroundStyle(.secondary)
             DisclosureGroup("Included Inputs & Order") {
                 Text(
                     "Each press advances from the last known input and wraps around. Select at least two; use the arrows to reorder."

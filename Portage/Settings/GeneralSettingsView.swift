@@ -3,6 +3,7 @@ import SwiftUI
 
 struct GeneralSettingsView: View {
     @Bindable private var appearance = AppAppearance.shared
+    @Bindable private var updater = AppUpdater.shared
     @State private var startupError: String?
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
@@ -33,6 +34,23 @@ struct GeneralSettingsView: View {
                         }
                     }
                 if let startupError { Text(startupError).font(.caption).foregroundStyle(.red) }
+            }
+
+            Section {
+                Toggle("Automatically check for updates", isOn: Binding(
+                    get: { updater.automaticallyChecks },
+                    set: { updater.setAutomaticallyChecks($0) }))
+                HStack {
+                    Text("Get the latest improvements from GitHub.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Check for Updates…") { updater.checkForUpdates() }
+                        .disabled(!updater.canCheckForUpdates)
+                }
+            } header: {
+                Text("Updates")
+            } footer: {
+                Text("Available updates appear in a window where you can review, download, and install them. Update downloads are verified before installation.")
             }
 
             Section("About") {

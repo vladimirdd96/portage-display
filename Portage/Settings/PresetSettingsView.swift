@@ -64,6 +64,13 @@ private struct PresetDetailView: View {
 
     var body: some View {
         Form {
+            Section {
+                Text("A preset saves the input to select on one or more displays. Applying it switches all included displays together.")
+                if monitorStore.monitors.filter({ !$0.isBuiltIn }).count == 1 {
+                    Text("With one display and one input, it works like an individual input shortcut—just with a name you choose.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
             Section("Preset") {
                 TextField("Name", text: $editedName)
                     .focused($nameFocused)
@@ -92,7 +99,9 @@ private struct PresetDetailView: View {
                     }
                 }
             }
-            Section("Display Inputs") {
+            Section("Inputs to Apply") {
+                Text("Choose an input for each display. Leave Unchanged keeps that display on its current input.")
+                    .font(.caption).foregroundStyle(.secondary)
                 if monitorStore.monitors.filter({ !$0.isBuiltIn }).isEmpty {
                     Text("Connect an external display to choose its input.")
                         .foregroundStyle(.secondary)
