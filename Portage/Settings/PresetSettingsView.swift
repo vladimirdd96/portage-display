@@ -78,7 +78,7 @@ private struct PresetDetailView: View {
                     HStack {
                         Text("Activate this preset")
                         Spacer()
-                        KeyboardShortcuts.Recorder(for: KeyboardShortcuts.Name(name)) { shortcut in
+                        ShortcutRecorder(for: KeyboardShortcuts.Name(name)) { shortcut in
                             ShortcutAssignment.move(
                                 shortcut, to: KeyboardShortcuts.Name(name),
                                 among: ShortcutAssignment.names(monitors: monitorStore, presets: presetStore))

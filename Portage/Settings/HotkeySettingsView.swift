@@ -28,7 +28,7 @@ struct HotkeySettingsView: View {
                                 HStack {
                                     Label(input.label, systemImage: "arrow.right.to.line")
                                     Spacer()
-                                    KeyboardShortcuts.Recorder(for: .inputSource(monitor.edidUUID, input.ddcValue)) {
+                                    ShortcutRecorder(for: .inputSource(monitor.edidUUID, input.ddcValue)) {
                                         shortcut in
                                         ShortcutAssignment.move(
                                             shortcut, to: .inputSource(monitor.edidUUID, input.ddcValue),
@@ -45,7 +45,7 @@ struct HotkeySettingsView: View {
                 HStack {
                     Text("Show or Hide Controls")
                     Spacer()
-                    KeyboardShortcuts.Recorder(for: .togglePanel) { shortcut in
+                    ShortcutRecorder(for: .togglePanel) { shortcut in
                         ShortcutAssignment.move(
                             shortcut, to: .togglePanel,
                             among: ShortcutAssignment.names(monitors: monitorStore, presets: presetStore))
@@ -63,7 +63,7 @@ struct HotkeySettingsView: View {
                             HStack {
                                 Text(preset.name)
                                 Spacer()
-                                KeyboardShortcuts.Recorder(for: KeyboardShortcuts.Name(hotkeyName)) { shortcut in
+                                ShortcutRecorder(for: KeyboardShortcuts.Name(hotkeyName)) { shortcut in
                                     ShortcutAssignment.move(
                                         shortcut, to: KeyboardShortcuts.Name(hotkeyName),
                                         among: ShortcutAssignment.names(monitors: monitorStore, presets: presetStore))

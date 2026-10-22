@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.13.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.14.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 

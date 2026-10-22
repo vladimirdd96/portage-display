@@ -13,7 +13,7 @@ struct CycleInputSettings: View {
             HStack {
                 Label("Cycle Inputs", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
                 Spacer()
-                KeyboardShortcuts.Recorder(for: .cycleInputs(monitor.id)) { shortcut in
+                ShortcutRecorder(for: .cycleInputs(monitor.id)) { shortcut in
                     ShortcutAssignment.move(
                         shortcut, to: .cycleInputs(monitor.id),
                         among: ShortcutAssignment.names(monitors: monitorStore, presets: presetStore))
