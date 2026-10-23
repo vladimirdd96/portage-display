@@ -8,6 +8,7 @@ struct MonitorRow: View {
     let onToggle: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("menu.sectionStates") private var sectionData = Data()
+    @AppStorage("menu.showDisplayInfo") private var showDisplayInfo = false
     @AppStorage("menu.brightnessAlwaysVisible") private var brightnessAlwaysVisible = true
     @AppStorage("menu.inputsAlwaysVisible") private var inputsAlwaysVisible = true
     @AppStorage("menu.singleExpandedFeature") private var singleFeature = false
@@ -85,26 +86,28 @@ struct MonitorRow: View {
                         HardwareControls(monitor: monitor, monitorStore: monitorStore)
                     }
                 }
-                featureRow(.details, title: "Display Info", symbol: "info.circle") {
-                    VStack(alignment: .leading, spacing: 6) {
-                        LabeledContent("Connection", value: monitor.isBuiltIn ? "Built-in" : "External")
-                        LabeledContent("Manufacturer", value: monitor.manufacturer)
-                        if !monitor.alphanumericSerial.isEmpty {
-                            LabeledContent("Serial", value: monitor.alphanumericSerial)
-                        }
-                        if let id = monitor.systemDisplayID {
-                            let size = CGDisplayScreenSize(id)
-                            if size.width > 0 {
-                                LabeledContent(
-                                    "Physical size", value: "\(Int(size.width)) × \(Int(size.height)) mm")
+                if showDisplayInfo {
+                    featureRow(.details, title: "Display Info", symbol: "info.circle") {
+                        VStack(alignment: .leading, spacing: 6) {
+                            LabeledContent("Connection", value: monitor.isBuiltIn ? "Built-in" : "External")
+                            LabeledContent("Manufacturer", value: monitor.manufacturer)
+                            if !monitor.alphanumericSerial.isEmpty {
+                                LabeledContent("Serial", value: monitor.alphanumericSerial)
                             }
-                            LabeledContent("Main display", value: CGDisplayIsMain(id) != 0 ? "Yes" : "No")
-                            Button("Identify This Display") {
-                                DisplayIdentifier.shared.show(displayID: id, name: monitor.displayName)
+                            if let id = monitor.systemDisplayID {
+                                let size = CGDisplayScreenSize(id)
+                                if size.width > 0 {
+                                    LabeledContent(
+                                        "Physical size", value: "\(Int(size.width)) × \(Int(size.height)) mm")
+                                }
+                                LabeledContent("Main display", value: CGDisplayIsMain(id) != 0 ? "Yes" : "No")
+                                Button("Identify This Display") {
+                                    DisplayIdentifier.shared.show(displayID: id, name: monitor.displayName)
+                                }
+                                .buttonStyle(.glass)
                             }
-                            .buttonStyle(.glass)
-                        }
-                    }.font(.caption).textSelection(.enabled)
+                        }.font(.caption).textSelection(.enabled)
+                    }
                 }
 
             }

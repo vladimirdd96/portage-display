@@ -41,6 +41,7 @@ struct MenuSettingsView: View {
     @AppStorage("menu.sectionStates") private var sectionData = Data()
     @AppStorage("menu.presetsExpanded") private var presetsExpanded = false
     @AppStorage("menu.singleExpandedFeature") private var singleFeature = false
+    @AppStorage("menu.showDisplayInfo") private var showDisplayInfo = false
     @AppStorage("menu.brightnessAlwaysVisible") private var brightnessAlwaysVisible = true
     @AppStorage("menu.inputsAlwaysVisible") private var inputsAlwaysVisible = true
 
@@ -134,6 +135,11 @@ struct MenuSettingsView: View {
                             get: { preferences.shown(.profiles) },
                             set: { preferences.setShown($0, .profiles) }))
                             .disabled(!preferences.enabled(.profiles))
+                    }
+                    Section("Display Information") {
+                        Toggle("Show Display Info in the menu", isOn: $showDisplayInfo)
+                        Text("Connection, manufacturer, size, and identification controls. Off by default; display information stays available in Settings → Displays → Info.")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                     Section("Menu Controls") {
                         Button("Choose Which Controls Appear…", action: onOpenFeatures)

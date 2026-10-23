@@ -4,7 +4,7 @@ A lightweight, native macOS menu-bar app for display inputs, keyboard shortcuts,
 
 ## Download and install
 
-Download **Portage-Display-1.18.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
+Download **Portage-Display-1.19.zip** from [Releases](https://github.com/vladimirdd96/portage-display/releases/latest), unzip it, and drag **Portage.app** into **Applications**. Open it to configure displays and shortcuts; the menu-bar icon provides everyday controls. Right-click the icon for Settings, refresh, and Quit.
 
 **Requires an Apple silicon Mac (M1 or newer) and macOS 26.5 or later.** Intel Macs and earlier macOS versions are not supported by this release.
 
@@ -99,3 +99,5 @@ Old input-only presets and shortcuts remain compatible. Appearance controls are 
 **Monitor Colors** uses standard DDC/MCCS color preset (0x14) and RGB gain (0x16, 0x18, 0x1A) controls. Support comes from the connected monitor’s capability report and successful reads, so compatible brands and models work without a large vendor database. Only advertised preset values are offered; standard names follow [MCCS as documented by ddcutil](https://www.ddcutil.com/vcpinfo_output/). A monitor may expose additional proprietary settings only through its own OSD, and RGB gain may require its User/Custom mode. We have verified capability discovery on the development monitor; other models require real-device testing.
 
 Disable Monitor Color Controls in Features to skip its hardware reads and block its writes. Disabled feature controls are not created in the menu or display settings. Hardware state refreshes when controls open or displays change; there is no continuous polling. ICC profile lists are loaded only when their advanced controls are opened. Saved preferences and the app’s compiled code still occupy a small amount of memory—disabled features cannot literally use zero RAM.
+
+Display Info is hidden from the menu by default. Enable **Show Display Info in the menu** in **Settings → Menu Bar → Quick Access**. This preference is remembered; information remains available in **Displays → Info**.
