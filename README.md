@@ -15,6 +15,24 @@ Brightness controls for built-in and external displays, expandable display rows,
 <img src="docs/images/menu-bar.png" alt="Portage Display macOS menu bar showing brightness sliders for a MacBook Retina display and an Alienware external monitor, plus expandable presets" width="800">
 
 <details>
+<summary><strong>Inputs and keyboard shortcuts</strong></summary>
+
+Configure a single shortcut to cycle through chosen inputs, or assign separate shortcuts to DisplayPort and HDMI inputs. Expanding Switch to One Input reveals the individual shortcut fields.
+
+![Portage Display Inputs and Shortcuts settings showing cycle inputs and separate keyboard shortcut fields for DisplayPort, HDMI 1, and HDMI 2](docs/images/inputs-shortcuts.jpg)
+
+</details>
+
+<details>
+<summary><strong>Saved display presets</strong></summary>
+
+Give a preset a name, assign a keyboard shortcut, and select the input it should apply to each display. Appearance and audio settings are optional; editing a preset does not apply it.
+
+![Portage Display Presets settings showing a Work Mac preset, its keyboard shortcut, and an external monitor assigned to HDMI 2](docs/images/presets-settings.jpg)
+
+</details>
+
+<details>
 <summary><strong>Menu customization settings</strong></summary>
 
 Choose which controls remain within reach, whether inputs stay expanded, and whether Display Info appears in the menu.
