@@ -6,6 +6,34 @@ Built in Swift with native AppKit and SwiftUI controls, Portage Display supports
 
 [Download the latest release](https://github.com/vladimirdd96/portage-display/releases/latest) · [Report a compatibility issue](https://github.com/vladimirdd96/portage-display/issues) · [Automation and agent reference](docs/AUTOMATION.md) · [MIT license](LICENSE)
 
+## Screenshots
+
+### Menu bar controls
+
+Brightness controls for built-in and external displays, expandable display rows, and saved presets in the native macOS menu. Controls shown depend on your configuration and monitor support.
+
+<img src="docs/images/menu-bar.png" alt="Portage Display macOS menu bar showing brightness sliders for a MacBook Retina display and an Alienware external monitor, plus expandable presets" width="800">
+
+<details>
+<summary><strong>Menu customization settings</strong></summary>
+
+Choose which controls remain within reach, whether inputs stay expanded, and whether Display Info appears in the menu.
+
+![Portage Display Quick Access settings for brightness visibility, input buttons, presets, and optional Display Info](docs/images/menu-customization.png)
+
+</details>
+
+<details>
+<summary><strong>Appearance and in-app updates</strong></summary>
+
+Native Settings includes System, Light, and Dark appearance, launch at login, and optional automatic update checks.
+
+![Portage Display General settings showing appearance choices, launch at login, and signed in-app update controls](docs/images/general-settings.png)
+
+</details>
+
+Screenshots show version 1.19. The menu image was supplied by the project maintainer; Settings images were captured from the running app.
+
 ## What can I do with Portage Display?
 
 | Task | Available controls |
