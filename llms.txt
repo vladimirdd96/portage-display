@@ -1,0 +1,15 @@
+# Portage Display
+
+> Free, MIT-licensed native macOS menu bar app for DDC/CI external monitor input switching, brightness, keyboard shortcuts, monitor-native color controls, and multi-display presets. Apple silicon; macOS 26.5+.
+
+## Documentation
+
+- [README](https://github.com/vladimirdd96/portage-display/blob/main/README.md): Features, installation, compatibility, configuration, limitations, and local Xcode build.
+- [Automation reference](https://github.com/vladimirdd96/portage-display/blob/main/docs/AUTOMATION.md): URL routes, AppleScript/App Intents entry points, source map, and hardware actions.
+- [Releases](https://github.com/vladimirdd96/portage-display/releases/latest): App ZIP and checksums. Downloads are ad-hoc signed, not Apple-notarized.
+- [Publishing updates](https://github.com/vladimirdd96/portage-display/blob/main/docs/RELEASING.md): Maintainer signing and release workflow.
+- [MIT license](https://github.com/vladimirdd96/portage-display/blob/main/LICENSE): Original Portage attribution retained.
+
+## Scope
+
+Native AppKit/SwiftUI desktop application; no standalone CLI, HTTP API, or MCP server. External controls require compatible DDC/CI hardware. No automatic powered-off-input detection, USB peripheral switching, virtual displays, or XDR brightness. Independent Portage fork; not affiliated with BetterDisplay or Apple.
