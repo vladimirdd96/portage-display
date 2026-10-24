@@ -19,7 +19,7 @@ Brightness controls for built-in and external displays, expandable display rows,
 
 Choose which controls remain within reach, whether inputs stay expanded, and whether Display Info appears in the menu.
 
-![Portage Display Quick Access settings for brightness visibility, input buttons, presets, and optional Display Info](docs/images/menu-customization.png)
+![Portage Display Quick Access settings for brightness visibility, input buttons, presets, and optional Display Info](docs/images/menu-customization.jpg)
 
 </details>
 
@@ -28,7 +28,7 @@ Choose which controls remain within reach, whether inputs stay expanded, and whe
 
 Native Settings includes System, Light, and Dark appearance, launch at login, and optional automatic update checks.
 
-![Portage Display General settings showing appearance choices, launch at login, and signed in-app update controls](docs/images/general-settings.png)
+![Portage Display General settings showing appearance choices, launch at login, and signed in-app update controls](docs/images/general-settings.jpg)
 
 </details>
 
